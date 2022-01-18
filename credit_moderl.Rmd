@@ -1,0 +1,192 @@
+---
+title: "Tidymodels overview"
+author: "Nick Rohrbaugh"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+
+credit_data <- read.csv("data/credit_data.csv")
+credit_data <- na.omit(credit_data)
+```
+
+# Data Splitting with `rsample`
+
+First, we'll use the `rsample` package to split our credit data into training and testing sets with `initial_split()`. Then we'll create data frames for the two sets.
+
+
+```{r}
+set.seed(123)  # Setting the seed will let you reproduce a random split
+
+# Put 3/4 of data into the training set
+credit_split <- initial_split(credit_data, prop = .75)
+class(credit_split)
+
+# Create data frames for the two sets:
+train_data <- training(credit_split)
+test_data <- testing(credit_split)
+```
+
+
+# Create a recipe
+
+Next, we'll create a *recipe* with the `recipe()` function from the `recipes` package. Recipes help us create and preprocess our data so it's ready for modeling.
+
+The `recipe`() function needs a *formula* and a *dataset*. 
+
+```{r}
+# Let's predict Status from all other predictors, noted by Status ~ .
+credit_rec <- recipe(Status ~ ., data = credit_data)
+
+summary(credit_rec)
+```
+
+But we can do more than just specify our data and formula. We can also add steps for adding, removing, or transforming our variables. We can also explicitly identify categorical variables and add dummy variables.
+
+```{r}
+# ggplot(credit_data, aes(x = Income)) +
+#   geom_histogram()
+
+credit_rec <- 
+  recipe(Status ~ ., data = credit_data) %>% 
+  step_dummy(all_nominal(), -all_outcomes()) %>%   # Create dummy vars for all nominal vars, except outcomes
+  step_corr(all_numeric(), threshold = 0.7) %>%  # remove vars with large absolute correlations w/ other vars
+  step_log(Income, Expenses, Assets, Debt) %>%  # log transform vars with long right tails
+  step_center(all_numeric()) %>%  # center all numeric vars
+  step_zv(all_predictors())  # remove any columns with zero variance
+
+credit_rec
+```
+
+# Create and fit a model
+
+Next, we need to define our model. We've already chosen a formula (predict Status from everything) so we just need to choose the type of model and the *engine*, or implementation of that model that we'd like to use.
+
+In this example, we'll fit a logistic regression model with `logistic_reg()`, and we'll set `glm` as the engine. Try running `show_engines("logistic_reg")` to see which other options we have.
+
+```{r}
+lr_mod <- 
+  logistic_reg() %>% 
+  set_engine("glm")
+
+lr_mod
+
+# train_data_baked <- credit_rec %>%
+#   prep(train_data) %>%
+#   bake(train_data)
+# 
+# test_data_baked <- credit_rec %>%
+#   prep(train_data) %>%
+#   bake(test_data)
+```
+
+To fit the model, we'll first create a workflow and add our model and recipe to it.
+
+```{r}
+credit_wflow <- 
+  workflow() %>% 
+  add_model(lr_mod) %>% 
+  add_recipe(credit_rec)
+
+credit_wflow
+```
+
+Finally, we'll call `fit()` from the `parsnip` package to fit the model. Then we'll use `pull_workflow_fit()` from `workflows` and `tidy()` from `yardstick` to check the results.
+
+```{r}
+credit_fit <-
+  credit_wflow %>% 
+  fit(data = train_data)
+
+credit_fit
+
+credit_fit %>% 
+  pull_workflow_fit() %>% 
+  tidy()
+```
+
+# Generate predictions for test data
+
+Now that we've fit the model to our training data, we can apply the same trained *workflow* to our test data with `predict()`.
+
+```{r}
+predict(credit_fit, test_data)  # Return predicted classification
+
+predict(credit_fit, test_data, type = "prob")  # Return probabilities
+```
+
+# Check model performance
+
+Let's merge these columns back into our test data and see how our model performed. We can use the `roc_curve()` function from the `yardstick` package and `autoplot()` from the `tune` package to check out the ROC curve, as well as `metrics()` from `yardstick` to check our accuracy.
+
+```{r}
+credit_pred <- 
+  bind_cols(predict(credit_fit, test_data, type = "prob"), test_data) %>% 
+  bind_cols(predict(credit_fit, test_data)) %>% 
+  select(.pred_bad, .pred_good, .pred_class, everything())
+
+credit_pred
+
+credit_pred %>% 
+  roc_curve(truth = Status, .pred_bad) %>% 
+  autoplot()
+
+credit_pred %>% 
+  roc_auc(truth = Status, .pred_bad)
+
+credit_pred %>% 
+  metrics(truth = Status, .pred_class)
+```
+
+# Change the model
+
+Now that we've tried logistic regression, let's try a random forest instead.
+
+```{r}
+rf_mod <- 
+  rand_forest(trees = 1000) %>% 
+  set_engine("ranger", num.threads = 4) %>% 
+  set_mode("classification") # check show_engines("rand_forest") for all options
+
+show_engines("rand_forest")
+
+rf_wflow <- workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(credit_rec)
+
+rf_fit <- rf_wflow %>% 
+  fit(data = train_data)
+
+rf_pred <- predict(rf_fit, test_data) %>% 
+  bind_cols(test_data)
+
+rf_pred %>% 
+  metrics(truth = Status, .pred_class)
+```
+
+
+# Cross-validation: Now do it again! (and again, and...)
+
+```{r}
+set.seed(123)
+cv_split <- initial_split(credit_data, .75, strata = Status)  # Stratified split on Status
+
+cv_train <- training(cv_split)
+cv_test <- testing(cv_split)
+
+folds <- vfold_cv(cv_train, v = 10)  # 10-fold cross-validation
+
+folds
+```
+
+```{r}
+set.seed(456)
+rf_fit_rs <-
+  rf_wflow %>% 
+  fit_resamples(folds)
+
+rf_fit_rs %>% 
+  collect_metrics()
+```
