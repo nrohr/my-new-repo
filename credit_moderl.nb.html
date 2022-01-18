@@ -219,13 +219,125 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KHRpZHltb2RlbHMpXG5cbmNyZWRpdF9kYXRhIDwtIHJlYWQuY3N2KFwiZGF0YS9jcmVkaXRfZGF0YS5jc3ZcIilcbmNyZWRpdF9kYXRhIDwtIG5hLm9taXQoY3JlZGl0X2RhdGEpXG5gYGAifQ== -->
-<pre class="r"><code>library(tidyverse)
-library(tidymodels)
-
-credit_data &lt;- read.csv(&quot;data/credit_data.csv&quot;)
-credit_data &lt;- na.omit(credit_data)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zdGFsbC5wYWNrYWdlcyhcInRpbWV0a1wiKVxuXG5gYGAifQ== -->
+<pre class="r"><code>install.packages(&quot;timetk&quot;)
+</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUmV0cmlldmluZyAnaHR0cHM6Ly9jcmFuLnJzdHVkaW8uY29tL2Jpbi9tYWNvc3gvY29udHJpYi80LjAvdGltZXRrXzIuNi4yLnRneicgLi4uXG5cdE9LIFtkb3dubG9hZGVkIDMuNSBNYiBpbiAwLjggc2Vjc11cblJldHJpZXZpbmcgJ2h0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbS9iaW4vbWFjb3N4L2NvbnRyaWIvNC4wL3Bsb3RseV80LjEwLjAudGd6JyAuLi5cblx0T0sgW2Rvd25sb2FkZWQgMyBNYiBpbiAwLjkgc2Vjc11cblJldHJpZXZpbmcgJ2h0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbS9iaW4vbWFjb3N4L2NvbnRyaWIvNC4wL2Nyb3NzdGFsa18xLjIuMC50Z3onIC4uLlxuXHRPSyBbZG93bmxvYWRlZCAzOTYuNiBLYiBpbiAwLjQgc2Vjc11cblJldHJpZXZpbmcgJ2h0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbS9iaW4vbWFjb3N4L2NvbnRyaWIvNC4wL3BhZHJfMC42LjAudGd6JyAuLi5cblx0T0sgW2Rvd25sb2FkZWQgMyBNYiBpbiAwLjggc2Vjc11cblJldHJpZXZpbmcgJ2h0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbS9zcmMvY29udHJpYi9mb3JlY2FzdF84LjE2LnRhci5neicgLi4uXG5cdE9LIFtkb3dubG9hZGVkIDc2Ny42IEtiIGluIDAuNCBzZWNzXVxuUmV0cmlldmluZyAnaHR0cHM6Ly9jcmFuLnJzdHVkaW8uY29tL2Jpbi9tYWNvc3gvY29udHJpYi80LjAvbG10ZXN0XzAuOS0zOS50Z3onIC4uLlxuXHRPSyBbZG93bmxvYWRlZCAzOTIuMyBLYiBpbiAwLjQgc2Vjc11cblJldHJpZXZpbmcgJ2h0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbS9iaW4vbWFjb3N4L2NvbnRyaWIvNC4wL3RzZXJpZXNfMC4xMC00OS50Z3onIC4uLlxuXHRPSyBbZG93bmxvYWRlZCA0MDYuMyBLYiBpbiAwLjQgc2Vjc11cblJldHJpZXZpbmcgJ2h0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbS9iaW4vbWFjb3N4L2NvbnRyaWIvNC4wL1RUUl8wLjI0LjMudGd6JyAuLi5cblx0T0sgW2Rvd25sb2FkZWQgNTIwLjUgS2IgaW4gMC40IHNlY3NdXG5SZXRyaWV2aW5nICdodHRwczovL2NyYW4ucnN0dWRpby5jb20vYmluL21hY29zeC9jb250cmliLzQuMC9SY3BwQXJtYWRpbGxvXzAuMTAuNy41LjAudGd6JyAuLi5cblx0T0sgW2Rvd25sb2FkZWQgMS41IE1iIGluIDAuNSBzZWNzXVxuSW5zdGFsbGluZyBodG1sd2lkZ2V0cyBbMS41LjRdIC4uLlxuXHRPSyBbbGlua2VkIGNhY2hlXVxuSW5zdGFsbGluZyBsYXp5ZXZhbCBbMC4yLjJdIC4uLlxuXHRPSyBbbGlua2VkIGNhY2hlXVxuSW5zdGFsbGluZyBjcm9zc3RhbGsgWzEuMi4wXSAuLi5cblx0T0sgW2luc3RhbGxlZCBiaW5hcnldXG5JbnN0YWxsaW5nIGxhdGVyIFsxLjMuMF0gLi4uXG5cdE9LIFtsaW5rZWQgY2FjaGVdXG5JbnN0YWxsaW5nIHByb21pc2VzIFsxLjIuMC4xXSAuLi5cblx0T0sgW2xpbmtlZCBjYWNoZV1cbkluc3RhbGxpbmcgcGxvdGx5IFs0LjEwLjBdIC4uLlxuXHRPSyBbaW5zdGFsbGVkIGJpbmFyeV1cbkluc3RhbGxpbmcgcGFkciBbMC42LjBdIC4uLlxuXHRPSyBbaW5zdGFsbGVkIGJpbmFyeV1cbkluc3RhbGxpbmcgem9vIFsxLjgtOV0gLi4uXG5cdE9LIFtsaW5rZWQgY2FjaGVdXG5JbnN0YWxsaW5nIHh0cyBbMC4xMi4xXSAuLi5cblx0T0sgW2xpbmtlZCBjYWNoZV1cbkluc3RhbGxpbmcgYW55dGltZSBbMC4zLjldIC4uLlxuXHRPSyBbbGlua2VkIGNhY2hlXVxuSW5zdGFsbGluZyBmcmFjZGlmZiBbMS41LTFdIC4uLlxuXHRPSyBbbGlua2VkIGNhY2hlXVxuSW5zdGFsbGluZyBsbXRlc3QgWzAuOS0zOV0gLi4uXG5cdE9LIFtpbnN0YWxsZWQgYmluYXJ5XVxuSW5zdGFsbGluZyBxdWFkcHJvZyBbMS41LThdIC4uLlxuXHRPSyBbbGlua2VkIGNhY2hlXVxuSW5zdGFsbGluZyBUVFIgWzAuMjQuM10gLi4uXG5cdE9LIFtpbnN0YWxsZWQgYmluYXJ5XVxuSW5zdGFsbGluZyBxdWFudG1vZCBbMC40LjE4XSAuLi5cblx0T0sgW2xpbmtlZCBjYWNoZV1cbkluc3RhbGxpbmcgdHNlcmllcyBbMC4xMC00OV0gLi4uXG5cdE9LIFtpbnN0YWxsZWQgYmluYXJ5XVxuSW5zdGFsbGluZyB1cmNhIFsxLjMtMF0gLi4uXG5cdE9LIFtsaW5rZWQgY2FjaGVdXG5JbnN0YWxsaW5nIFJjcHBBcm1hZGlsbG8gWzAuMTAuNy41LjBdIC4uLlxuXHRPSyBbaW5zdGFsbGVkIGJpbmFyeV1cbkluc3RhbGxpbmcgZm9yZWNhc3QgWzguMTZdIC4uLlxuXHRGQUlMRURcbkVycm9yIGluc3RhbGxpbmcgcGFja2FnZSAnZm9yZWNhc3QnOlxuPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09XG5cbiogaW5zdGFsbGluZyB0byBsaWJyYXJ5IOKAmC9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L3N0YWdpbmcvMeKAmVxuKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2Ug4oCYZm9yZWNhc3TigJkgLi4uXG4qKiBwYWNrYWdlIOKAmGZvcmVjYXN04oCZIHN1Y2Nlc3NmdWxseSB1bnBhY2tlZCBhbmQgTUQ1IHN1bXMgY2hlY2tlZFxuKiogdXNpbmcgc3RhZ2VkIGluc3RhbGxhdGlvblxuKiogbGlic1xuY2xhbmcrKyAtbW1hY29zeC12ZXJzaW9uLW1pbj0xMC4xMyAtc3RkPWdudSsrMTEgLUlcIi9MaWJyYXJ5L0ZyYW1ld29ya3MvUi5mcmFtZXdvcmsvUmVzb3VyY2VzL2luY2x1ZGVcIiAtRE5ERUJVRyAgLUknL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvbGlicmFyeS9SLTQuMC94ODZfNjQtYXBwbGUtZGFyd2luMTcuMC9SY3BwL2luY2x1ZGUnIC1JJy9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L3N0YWdpbmcvMS9SY3BwQXJtYWRpbGxvL2luY2x1ZGUnIC1JL3Vzci9sb2NhbC9pbmNsdWRlICAgLWZQSUMgIC1XYWxsIC1nIC1PMiAgLWMgY2FsY0JBVFMuY3BwIC1vIGNhbGNCQVRTLm9cbkluIGZpbGUgaW5jbHVkZWQgZnJvbSBjYWxjQkFUUy5jcHA6MTpcbkluIGZpbGUgaW5jbHVkZWQgZnJvbSAuL2NhbGNCQVRTLmg6MzY6XG5JbiBmaWxlIGluY2x1ZGVkIGZyb20gL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvc3RhZ2luZy8xL1JjcHBBcm1hZGlsbG8vaW5jbHVkZS9SY3BwQXJtYWRpbGxvLmg6MzI6XG5JbiBmaWxlIGluY2x1ZGVkIGZyb20gL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvbGlicmFyeS9SLTQuMC94ODZfNjQtYXBwbGUtZGFyd2luMTcuMC9SY3BwL2luY2x1ZGUvUmNwcC5oOjU3OlxuL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvbGlicmFyeS9SLTQuMC94ODZfNjQtYXBwbGUtZGFyd2luMTcuMC9SY3BwL2luY2x1ZGUvUmNwcC9EYXRhRnJhbWUuaDoxMzY6MTg6IHdhcm5pbmc6IHVudXNlZCB2YXJpYWJsZSAnZGF0YScgWy1XdW51c2VkLXZhcmlhYmxlXVxuICAgICAgICAgICAgU0VYUCBkYXRhID0gUGFyZW50OjpnZXRfXygpO1xuICAgICAgICAgICAgICAgICBeXG4xIHdhcm5pbmcgZ2VuZXJhdGVkLlxuY2xhbmcrKyAtbW1hY29zeC12ZXJzaW9uLW1pbj0xMC4xMyAtc3RkPWdudSsrMTEgLUlcIi9MaWJyYXJ5L0ZyYW1ld29ya3MvUi5mcmFtZXdvcmsvUmVzb3VyY2VzL2luY2x1ZGVcIiAtRE5ERUJVRyAgLUknL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvbGlicmFyeS9SLTQuMC94ODZfNjQtYXBwbGUtZGFyd2luMTcuMC9SY3BwL2luY2x1ZGUnIC1JJy9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L3N0YWdpbmcvMS9SY3BwQXJtYWRpbGxvL2luY2x1ZGUnIC1JL3Vzci9sb2NhbC9pbmNsdWRlICAgLWZQSUMgIC1XYWxsIC1nIC1PMiAgLWMgY2FsY1RCQVRTLmNwcCAtbyBjYWxjVEJBVFMub1xuSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGNhbGNUQkFUUy5jcHA6MTpcbkluIGZpbGUgaW5jbHVkZWQgZnJvbSAuL2NhbGNCQVRTLmg6MzY6XG5JbiBmaWxlIGluY2x1ZGVkIGZyb20gL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvc3RhZ2luZy8xL1JjcHBBcm1hZGlsbG8vaW5jbHVkZS9SY3BwQXJtYWRpbGxvLmg6MzI6XG5JbiBmaWxlIGluY2x1ZGVkIGZyb20gL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvbGlicmFyeS9SLTQuMC94ODZfNjQtYXBwbGUtZGFyd2luMTcuMC9SY3BwL2luY2x1ZGUvUmNwcC5oOjU3OlxuL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvbGlicmFyeS9SLTQuMC94ODZfNjQtYXBwbGUtZGFyd2luMTcuMC9SY3BwL2luY2x1ZGUvUmNwcC9EYXRhRnJhbWUuaDoxMzY6MTg6IHdhcm5pbmc6IHVudXNlZCB2YXJpYWJsZSAnZGF0YScgWy1XdW51c2VkLXZhcmlhYmxlXVxuICAgICAgICAgICAgU0VYUCBkYXRhID0gUGFyZW50OjpnZXRfXygpO1xuICAgICAgICAgICAgICAgICBeXG4xIHdhcm5pbmcgZ2VuZXJhdGVkLlxuY2xhbmcrKyAtbW1hY29zeC12ZXJzaW9uLW1pbj0xMC4xMyAtc3RkPWdudSsrMTEgLUlcIi9MaWJyYXJ5L0ZyYW1ld29ya3MvUi5mcmFtZXdvcmsvUmVzb3VyY2VzL2luY2x1ZGVcIiAtRE5ERUJVRyAgLUknL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvbGlicmFyeS9SLTQuMC94ODZfNjQtYXBwbGUtZGFyd2luMTcuMC9SY3BwL2luY2x1ZGUnIC1JJy9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L3N0YWdpbmcvMS9SY3BwQXJtYWRpbGxvL2luY2x1ZGUnIC1JL3Vzci9sb2NhbC9pbmNsdWRlICAgLWZQSUMgIC1XYWxsIC1nIC1PMiAgLWMgZXRzVGFyZ2V0RnVuY3Rpb24uY3BwIC1vIGV0c1RhcmdldEZ1bmN0aW9uLm9cbkluIGZpbGUgaW5jbHVkZWQgZnJvbSBldHNUYXJnZXRGdW5jdGlvbi5jcHA6NzpcbkluIGZpbGUgaW5jbHVkZWQgZnJvbSAuL2V0c1RhcmdldEZ1bmN0aW9uLmg6MzpcbkluIGZpbGUgaW5jbHVkZWQgZnJvbSAvVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9saWJyYXJ5L1ItNC4wL3g4Nl82NC1hcHBsZS1kYXJ3aW4xNy4wL1JjcHAvaW5jbHVkZS9SY3BwLmg6NTc6XG4vVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9saWJyYXJ5L1ItNC4wL3g4Nl82NC1hcHBsZS1kYXJ3aW4xNy4wL1JjcHAvaW5jbHVkZS9SY3BwL0RhdGFGcmFtZS5oOjEzNjoxODogd2FybmluZzogdW51c2VkIHZhcmlhYmxlICdkYXRhJyBbLVd1bnVzZWQtdmFyaWFibGVdXG4gICAgICAgICAgICBTRVhQIGRhdGEgPSBQYXJlbnQ6OmdldF9fKCk7XG4gICAgICAgICAgICAgICAgIF5cbjEgd2FybmluZyBnZW5lcmF0ZWQuXG5jbGFuZysrIC1tbWFjb3N4LXZlcnNpb24tbWluPTEwLjEzIC1zdGQ9Z251KysxMSAtSVwiL0xpYnJhcnkvRnJhbWV3b3Jrcy9SLmZyYW1ld29yay9SZXNvdXJjZXMvaW5jbHVkZVwiIC1ETkRFQlVHICAtSScvVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9saWJyYXJ5L1ItNC4wL3g4Nl82NC1hcHBsZS1kYXJ3aW4xNy4wL1JjcHAvaW5jbHVkZScgLUknL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvc3RhZ2luZy8xL1JjcHBBcm1hZGlsbG8vaW5jbHVkZScgLUkvdXNyL2xvY2FsL2luY2x1ZGUgICAtZlBJQyAgLVdhbGwgLWcgLU8yICAtYyBldHNUYXJnZXRGdW5jdGlvbldyYXBwZXIuY3BwIC1vIGV0c1RhcmdldEZ1bmN0aW9uV3JhcHBlci5vXG5JbiBmaWxlIGluY2x1ZGVkIGZyb20gZXRzVGFyZ2V0RnVuY3Rpb25XcmFwcGVyLmNwcDoxMDpcbkluIGZpbGUgaW5jbHVkZWQgZnJvbSAvVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9saWJyYXJ5L1ItNC4wL3g4Nl82NC1hcHBsZS1kYXJ3aW4xNy4wL1JjcHAvaW5jbHVkZS9SY3BwLmg6NTc6XG4vVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9saWJyYXJ5L1ItNC4wL3g4Nl82NC1hcHBsZS1kYXJ3aW4xNy4wL1JjcHAvaW5jbHVkZS9SY3BwL0RhdGFGcmFtZS5oOjEzNjoxODogd2FybmluZzogdW51c2VkIHZhcmlhYmxlICdkYXRhJyBbLVd1bnVzZWQtdmFyaWFibGVdXG4gICAgICAgICAgICBTRVhQIGRhdGEgPSBQYXJlbnQ6OmdldF9fKCk7XG4gICAgICAgICAgICAgICAgIF5cbjEgd2FybmluZyBnZW5lcmF0ZWQuXG5jbGFuZyAtbW1hY29zeC12ZXJzaW9uLW1pbj0xMC4xMyAtSVwiL0xpYnJhcnkvRnJhbWV3b3Jrcy9SLmZyYW1ld29yay9SZXNvdXJjZXMvaW5jbHVkZVwiIC1ETkRFQlVHICAtSScvVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9saWJyYXJ5L1ItNC4wL3g4Nl82NC1hcHBsZS1kYXJ3aW4xNy4wL1JjcHAvaW5jbHVkZScgLUknL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvc3RhZ2luZy8xL1JjcHBBcm1hZGlsbG8vaW5jbHVkZScgLUkvdXNyL2xvY2FsL2luY2x1ZGUgICAtZlBJQyAgLVdhbGwgLWcgLU8yICAtYyBldHNjYWxjLmMgLW8gZXRzY2FsYy5vXG5jbGFuZyAtbW1hY29zeC12ZXJzaW9uLW1pbj0xMC4xMyAtSVwiL0xpYnJhcnkvRnJhbWV3b3Jrcy9SLmZyYW1ld29yay9SZXNvdXJjZXMvaW5jbHVkZVwiIC1ETkRFQlVHICAtSScvVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9saWJyYXJ5L1ItNC4wL3g4Nl82NC1hcHBsZS1kYXJ3aW4xNy4wL1JjcHAvaW5jbHVkZScgLUknL1VzZXJzL25yb2hyL215LW5ldy1yZXBvL3JlbnYvc3RhZ2luZy8xL1JjcHBBcm1hZGlsbG8vaW5jbHVkZScgLUkvdXNyL2xvY2FsL2luY2x1ZGUgICAtZlBJQyAgLVdhbGwgLWcgLU8yICAtYyBldHNwb2x5cm9vdC5jIC1vIGV0c3BvbHlyb290Lm9cbmNsYW5nKysgLW1tYWNvc3gtdmVyc2lvbi1taW49MTAuMTMgLXN0ZD1nbnUrKzExIC1JXCIvTGlicmFyeS9GcmFtZXdvcmtzL1IuZnJhbWV3b3JrL1Jlc291cmNlcy9pbmNsdWRlXCIgLUROREVCVUcgIC1JJy9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L2xpYnJhcnkvUi00LjAveDg2XzY0LWFwcGxlLWRhcndpbjE3LjAvUmNwcC9pbmNsdWRlJyAtSScvVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9zdGFnaW5nLzEvUmNwcEFybWFkaWxsby9pbmNsdWRlJyAtSS91c3IvbG9jYWwvaW5jbHVkZSAgIC1mUElDICAtV2FsbCAtZyAtTzIgIC1jIG1ha2VCQVRTTWF0cmljZXMuY3BwIC1vIG1ha2VCQVRTTWF0cmljZXMub1xuSW4gZmlsZSBpbmNsdWRlZCBmcm9tIG1ha2VCQVRTTWF0cmljZXMuY3BwOjE6XG5JbiBmaWxlIGluY2x1ZGVkIGZyb20gLi9jYWxjQkFUUy5oOjM2OlxuSW4gZmlsZSBpbmNsdWRlZCBmcm9tIC9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L3N0YWdpbmcvMS9SY3BwQXJtYWRpbGxvL2luY2x1ZGUvUmNwcEFybWFkaWxsby5oOjMyOlxuSW4gZmlsZSBpbmNsdWRlZCBmcm9tIC9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L2xpYnJhcnkvUi00LjAveDg2XzY0LWFwcGxlLWRhcndpbjE3LjAvUmNwcC9pbmNsdWRlL1JjcHAuaDo1Nzpcbi9Vc2Vycy9ucm9oci9teS1uZXctcmVwby9yZW52L2xpYnJhcnkvUi00LjAveDg2XzY0LWFwcGxlLWRhcndpbjE3LjAvUmNwcC9pbmNsdWRlL1JjcHAvRGF0YUZyYW1lLmg6MTM2OjE4OiB3YXJuaW5nOiB1bnVzZWQgdmFyaWFibGUgJ2RhdGEnIFstV3VudXNlZC12YXJpYWJsZV1cbiAgICAgICAgICAgIFNFWFAgZGF0YSA9IFBhcmVudDo6Z2V0X18oKTtcbiAgICAgICAgICAgICAgICAgXlxubWFrZTogKioqIFttYWtlQkFUU01hdHJpY2VzLm9dIEludGVycnVwdDogMlxuRVJST1I6IGNvbXBpbGF0aW9uIGZhaWxlZCBmb3IgcGFja2FnZSDigJhmb3JlY2FzdOKAmVxuKiByZW1vdmluZyDigJgvVXNlcnMvbnJvaHIvbXktbmV3LXJlcG8vcmVudi9zdGFnaW5nLzEvZm9yZWNhc3TigJlcbiJ9 -->
+<pre><code>Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/timetk_2.6.2.tgz&#39; ...
+    OK [downloaded 3.5 Mb in 0.8 secs]
+Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/plotly_4.10.0.tgz&#39; ...
+    OK [downloaded 3 Mb in 0.9 secs]
+Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/crosstalk_1.2.0.tgz&#39; ...
+    OK [downloaded 396.6 Kb in 0.4 secs]
+Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/padr_0.6.0.tgz&#39; ...
+    OK [downloaded 3 Mb in 0.8 secs]
+Retrieving &#39;https://cran.rstudio.com/src/contrib/forecast_8.16.tar.gz&#39; ...
+    OK [downloaded 767.6 Kb in 0.4 secs]
+Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/lmtest_0.9-39.tgz&#39; ...
+    OK [downloaded 392.3 Kb in 0.4 secs]
+Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/tseries_0.10-49.tgz&#39; ...
+    OK [downloaded 406.3 Kb in 0.4 secs]
+Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/TTR_0.24.3.tgz&#39; ...
+    OK [downloaded 520.5 Kb in 0.4 secs]
+Retrieving &#39;https://cran.rstudio.com/bin/macosx/contrib/4.0/RcppArmadillo_0.10.7.5.0.tgz&#39; ...
+    OK [downloaded 1.5 Mb in 0.5 secs]
+Installing htmlwidgets [1.5.4] ...
+    OK [linked cache]
+Installing lazyeval [0.2.2] ...
+    OK [linked cache]
+Installing crosstalk [1.2.0] ...
+    OK [installed binary]
+Installing later [1.3.0] ...
+    OK [linked cache]
+Installing promises [1.2.0.1] ...
+    OK [linked cache]
+Installing plotly [4.10.0] ...
+    OK [installed binary]
+Installing padr [0.6.0] ...
+    OK [installed binary]
+Installing zoo [1.8-9] ...
+    OK [linked cache]
+Installing xts [0.12.1] ...
+    OK [linked cache]
+Installing anytime [0.3.9] ...
+    OK [linked cache]
+Installing fracdiff [1.5-1] ...
+    OK [linked cache]
+Installing lmtest [0.9-39] ...
+    OK [installed binary]
+Installing quadprog [1.5-8] ...
+    OK [linked cache]
+Installing TTR [0.24.3] ...
+    OK [installed binary]
+Installing quantmod [0.4.18] ...
+    OK [linked cache]
+Installing tseries [0.10-49] ...
+    OK [installed binary]
+Installing urca [1.3-0] ...
+    OK [linked cache]
+Installing RcppArmadillo [0.10.7.5.0] ...
+    OK [installed binary]
+Installing forecast [8.16] ...
+    FAILED
+Error installing package &#39;forecast&#39;:
+====================================
+
+* installing to library ‘/Users/nrohr/my-new-repo/renv/staging/1’
+* installing *source* package ‘forecast’ ...
+** package ‘forecast’ successfully unpacked and MD5 sums checked
+** using staged installation
+** libs
+clang++ -mmacosx-version-min=10.13 -std=gnu++11 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include&#39; -I&#39;/Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -c calcBATS.cpp -o calcBATS.o
+In file included from calcBATS.cpp:1:
+In file included from ./calcBATS.h:36:
+In file included from /Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include/RcppArmadillo.h:32:
+In file included from /Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp.h:57:
+/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp/DataFrame.h:136:18: warning: unused variable &#39;data&#39; [-Wunused-variable]
+            SEXP data = Parent::get__();
+                 ^
+1 warning generated.
+clang++ -mmacosx-version-min=10.13 -std=gnu++11 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include&#39; -I&#39;/Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -c calcTBATS.cpp -o calcTBATS.o
+In file included from calcTBATS.cpp:1:
+In file included from ./calcBATS.h:36:
+In file included from /Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include/RcppArmadillo.h:32:
+In file included from /Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp.h:57:
+/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp/DataFrame.h:136:18: warning: unused variable &#39;data&#39; [-Wunused-variable]
+            SEXP data = Parent::get__();
+                 ^
+1 warning generated.
+clang++ -mmacosx-version-min=10.13 -std=gnu++11 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include&#39; -I&#39;/Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -c etsTargetFunction.cpp -o etsTargetFunction.o
+In file included from etsTargetFunction.cpp:7:
+In file included from ./etsTargetFunction.h:3:
+In file included from /Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp.h:57:
+/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp/DataFrame.h:136:18: warning: unused variable &#39;data&#39; [-Wunused-variable]
+            SEXP data = Parent::get__();
+                 ^
+1 warning generated.
+clang++ -mmacosx-version-min=10.13 -std=gnu++11 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include&#39; -I&#39;/Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -c etsTargetFunctionWrapper.cpp -o etsTargetFunctionWrapper.o
+In file included from etsTargetFunctionWrapper.cpp:10:
+In file included from /Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp.h:57:
+/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp/DataFrame.h:136:18: warning: unused variable &#39;data&#39; [-Wunused-variable]
+            SEXP data = Parent::get__();
+                 ^
+1 warning generated.
+clang -mmacosx-version-min=10.13 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include&#39; -I&#39;/Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -c etscalc.c -o etscalc.o
+clang -mmacosx-version-min=10.13 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include&#39; -I&#39;/Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -c etspolyroot.c -o etspolyroot.o
+clang++ -mmacosx-version-min=10.13 -std=gnu++11 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include&#39; -I&#39;/Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -c makeBATSMatrices.cpp -o makeBATSMatrices.o
+In file included from makeBATSMatrices.cpp:1:
+In file included from ./calcBATS.h:36:
+In file included from /Users/nrohr/my-new-repo/renv/staging/1/RcppArmadillo/include/RcppArmadillo.h:32:
+In file included from /Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp.h:57:
+/Users/nrohr/my-new-repo/renv/library/R-4.0/x86_64-apple-darwin17.0/Rcpp/include/Rcpp/DataFrame.h:136:18: warning: unused variable &#39;data&#39; [-Wunused-variable]
+            SEXP data = Parent::get__();
+                 ^
+make: *** [makeBATSMatrices.o] Interrupt: 2
+ERROR: compilation failed for package ‘forecast’
+* removing ‘/Users/nrohr/my-new-repo/renv/staging/1/forecast’</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IGluc3RhbGwgb2YgcGFja2FnZSAnZm9yZWNhc3QnIGZhaWxlZCBbZXJyb3IgY29kZSAxXVxuIn0= -->
+<pre><code>Error: install of package &#39;forecast&#39; failed [error code 1]</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <div id="data-splitting-with-rsample" class="section level1">
